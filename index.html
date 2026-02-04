@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EvoCoffee Terminal</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="background-grid" aria-hidden="true"></div>
+    <header class="topbar">
+      <div class="prompt">
+        <span class="prompt-user">evolab</span>
+        <span class="prompt-sep">@</span>
+        <span class="prompt-host">evocoffee</span>
+        <span class="prompt-path">~/inventory</span>
+        <span class="prompt-cursor">▌</span>
+      </div>
+      <div class="top-actions">
+        <button class="ghost" id="seed-demo">Seed Demo Data</button>
+        <button class="ghost" id="export-data">Export</button>
+        <label class="ghost file-label">
+          Import
+          <input type="file" id="import-data" accept="application/json" />
+        </label>
+        <button class="danger" id="clear-data">Clear</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="hero">
+        <div>
+          <p class="kicker">Terminal-grade clarity for lab caffeine.</p>
+          <h1>EvoCoffee Inventory Console</h1>
+          <p class="subtitle">Track capsules, milk, purchases, and inventory in one place.</p>
+        </div>
+        <div class="hero-meta">
+          <div class="metric">
+            <span class="metric-label">Capsules on hand</span>
+            <span class="metric-value" id="metric-beans">0 caps</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Milk on hand</span>
+            <span class="metric-value" id="metric-milk">0 L</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Purchases logged</span>
+            <span class="metric-value" id="metric-purchase-count">0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Average purchase</span>
+            <span class="metric-value" id="metric-purchase-avg">€0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Total spend</span>
+            <span class="metric-value" id="metric-spend">€0</span>
+          </div>
+          <div class="metric">
+            <span class="metric-label">Top spender</span>
+            <span class="metric-value" id="metric-top">None yet</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header inventory-header">
+          <div>
+            <h2>Live Inventory</h2>
+            <p>Current storage and quick adjustments.</p>
+          </div>
+          <div class="inventory-chart chart" id="chart-inventory-brands"></div>
+        </div>
+        <form class="form-grid" id="storage-form">
+          <label>
+            LOR capsules
+            <div class="slider-group">
+              <input type="number" name="caps_lor" min="0" step="1" required data-slider="caps_lor" />
+              <input
+                type="range"
+                name="caps_lor_range"
+                min="0"
+                max="50"
+                step="1"
+                value="0"
+                data-slider-for="caps_lor"
+                data-max-default="50"
+              />
+            </div>
+          </label>
+          <label>
+            Illy capsules
+            <div class="slider-group">
+              <input type="number" name="caps_illy" min="0" step="1" required data-slider="caps_illy" />
+              <input
+                type="range"
+                name="caps_illy_range"
+                min="0"
+                max="50"
+                step="1"
+                value="0"
+                data-slider-for="caps_illy"
+                data-max-default="50"
+              />
+            </div>
+          </label>
+          <label>
+            Other capsules
+            <div class="slider-group">
+              <input type="number" name="caps_other" min="0" step="1" required data-slider="caps_other" />
+              <input
+                type="range"
+                name="caps_other_range"
+                min="0"
+                max="50"
+                step="1"
+                value="0"
+                data-slider-for="caps_other"
+                data-max-default="50"
+              />
+            </div>
+          </label>
+          <label>
+            Milk (liters)
+            <div class="slider-group">
+              <input type="number" name="milk" min="0" step="0.1" required data-slider="milk" />
+              <input
+                type="range"
+                name="milk_range"
+                min="0"
+                max="50"
+                step="0.1"
+                value="0"
+                data-slider-for="milk"
+                data-max-default="50"
+              />
+            </div>
+          </label>
+          <button type="submit">Set Current Storage</button>
+        </form>
+        <div class="low-stock" id="low-stock"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Log Purchases</h2>
+          <p>Track who bought coffee and when.</p>
+        </div>
+        <form class="form-grid" id="purchase-form">
+          <label>
+            Date
+            <input type="date" name="date" required />
+          </label>
+          <label>
+            Buyer
+            <input type="text" name="buyer" required placeholder="Name" />
+          </label>
+          <label>
+            Amount (EUR)
+            <input type="number" name="amount" min="0" step="0.01" required />
+          </label>
+          <label class="span-2">
+            Notes
+            <input type="text" name="notes" placeholder="Brand, quantity" />
+          </label>
+          <button type="submit">Add Purchase</button>
+        </form>
+      </section>
+
+      <section class="panel charts">
+        <div class="panel-header">
+          <h2>Analytics</h2>
+          <p>Charts update from purchases and inventory.</p>
+        </div>
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3>Monthly Spend</h3>
+            <div class="chart" id="chart-spend"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Top Spenders</h3>
+            <div class="chart" id="chart-spenders"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Purchases Per Month</h3>
+            <div class="chart" id="chart-count"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Spend Share</h3>
+            <div class="chart" id="chart-share"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel tables">
+        <div class="panel-header">
+          <h2>Recent Activity</h2>
+          <p>Last 5 entries per stream.</p>
+        </div>
+        <div class="table-grid">
+          <div>
+            <h3>Inventory Adjustments</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Total</th>
+                  <th>Milk</th>
+                  <th>Breakdown</th>
+                </tr>
+              </thead>
+              <tbody id="table-inventory"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Purchases</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Buyer</th>
+                  <th>Amount</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="table-purchases"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">Built for EvoLab.</footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
