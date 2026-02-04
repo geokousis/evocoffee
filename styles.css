@@ -39,11 +39,7 @@ body {
 }
 
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  left: 0;
-  right: 0;
+  position: relative;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -51,7 +47,6 @@ body {
   backdrop-filter: blur(16px);
   border-bottom: 1px solid rgba(76, 247, 165, 0.2);
   background: rgba(8, 11, 15, 0.85);
-  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.35);
 }
 
 .prompt {
