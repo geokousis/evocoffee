@@ -1,4 +1,20 @@
-# Deployment (Static)
+# Deployment
+
+## Shared storage (server)
+To share data across browsers, you need a server that can write to `data/state.json`.
+
+1. Copy the whole project to your server.
+2. Run:
+
+```
+node server.js
+```
+
+3. Open `http://your-server:3000`.
+
+You can set `PORT` and `DATA_PATH` environment variables if needed.
+
+## Static only (no shared storage)
 
 This is a static site. You can host it on any web server.
 

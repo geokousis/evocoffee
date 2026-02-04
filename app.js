@@ -1,6 +1,7 @@
 const STORAGE_KEY = "evocoffee.v1";
+const API_ENDPOINT = "/api/state";
 
-const state = loadData();
+const state = defaultState();
 const sliderPairs = [];
 
 const formatter = new Intl.NumberFormat("en-US", {
@@ -40,10 +41,11 @@ const elements = {
 
 init();
 
-function init() {
+async function init() {
   setDefaultDates();
   attachEvents();
   initSliders();
+  await loadData();
   renderAll();
 }
 
@@ -147,6 +149,7 @@ function attachEvents() {
     localStorage.removeItem(STORAGE_KEY);
     const fresh = defaultState();
     Object.assign(state, fresh);
+    saveData();
     renderAll();
   });
 
@@ -622,19 +625,49 @@ function escapeHtml(value) {
     .replace(/'/g, "&#039;");
 }
 
-function loadData() {
-  const stored = localStorage.getItem(STORAGE_KEY);
-  if (!stored) return defaultState();
+async function loadData() {
+  const local = loadLocalData();
+  hydrateState(local);
+
   try {
-    const parsed = JSON.parse(stored);
-    return hydrateState(parsed);
+    const response = await fetch(API_ENDPOINT, { cache: "no-store" });
+    if (!response.ok) throw new Error("Server data unavailable");
+    const parsed = await response.json();
+    hydrateState(parsed);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (error) {
-    return defaultState();
+    if (!local) {
+      hydrateState(defaultState());
+    }
+  }
+  return state;
+}
+
+function loadLocalData() {
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!stored) return null;
+  try {
+    return JSON.parse(stored);
+  } catch (error) {
+    return null;
   }
 }
 
 function saveData() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  saveDataRemote();
+}
+
+async function saveDataRemote() {
+  try {
+    await fetch(API_ENDPOINT, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(state),
+    });
+  } catch (error) {
+    // Swallow errors when running without a server.
+  }
 }
 
 function defaultState() {
